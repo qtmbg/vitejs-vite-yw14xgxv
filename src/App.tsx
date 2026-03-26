@@ -1,0 +1,969 @@
+import React, { useEffect, useRef, useState } from "react";
+import { motion, useScroll, useTransform, useInView, AnimatePresence } from "framer-motion";
+import { ChevronDown, Menu, X, Sparkles } from "lucide-react";
+
+const apiKey = ""; // API Key is provided by the environment
+
+// --- Utility: Fetch with Exponential Backoff ---
+async function fetchWithRetry(url, options, maxRetries = 5) {
+  let retries = 0;
+  let delay = 1000;
+
+  while (retries < maxRetries) {
+    try {
+      const response = await fetch(url, options);
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      return await response.json();
+    } catch (error) {
+      retries++;
+      if (retries >= maxRetries) {
+        throw error;
+      }
+      await new Promise((resolve) => setTimeout(resolve, delay));
+      delay *= 2; 
+    }
+  }
+}
+
+// --- Luxury Font Injection ---
+const FontStyles = () => (
+  <style>{`
+    @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400;1,500&family=Montserrat:wght@200;300;400;500&display=swap');
+    
+    .font-verne-serif {
+      font-family: 'Cormorant Garamond', serif;
+    }
+    .font-verne-sans {
+      font-family: 'Montserrat', sans-serif;
+    }
+    
+    html {
+      scroll-behavior: smooth;
+    }
+    
+    ::selection {
+      background: #0d2e26;
+      color: #EAF3E8;
+    }
+  `}</style>
+);
+
+// --- Custom Easing ---
+const luxuryEase = [0.16, 1, 0.3, 1];
+
+// --- Hero SVG Component ---
+function HeroSVG() {
+  return (
+    <svg viewBox="0 0 100 100" className="w-full h-full object-cover" preserveAspectRatio="xMidYMid slice">
+      <defs>
+        <linearGradient id="heroGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+          <stop offset="0%" stopColor="#0d2e26" />
+          <stop offset="50%" stopColor="#123a31" />
+          <stop offset="100%" stopColor="#0d2e26" />
+        </linearGradient>
+        <linearGradient id="goldGlow" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stopColor="#f7f2e8" stopOpacity="0.1" />
+          <stop offset="50%" stopColor="#f7f2e8" stopOpacity="0.4" />
+          <stop offset="100%" stopColor="#f7f2e8" stopOpacity="0.1" />
+        </linearGradient>
+      </defs>
+      <rect width="100" height="100" fill="url(#heroGradient)" />
+      
+      {/* Abstract Facet Lines */}
+      <g stroke="url(#goldGlow)" strokeWidth="0.05" fill="none" opacity="0.6">
+        <motion.path 
+          d="M50 20 L80 50 L50 80 L20 50 Z" 
+          initial={{ pathLength: 0, opacity: 0 }}
+          animate={{ pathLength: 1, opacity: 1 }}
+          transition={{ duration: 3, ease: luxuryEase }}
+        />
+        <motion.path 
+          d="M50 20 L50 80" 
+          initial={{ pathLength: 0, opacity: 0 }}
+          animate={{ pathLength: 1, opacity: 1 }}
+          transition={{ duration: 3, delay: 0.5, ease: luxuryEase }}
+        />
+        <motion.path 
+          d="M20 50 L80 50" 
+          initial={{ pathLength: 0, opacity: 0 }}
+          animate={{ pathLength: 1, opacity: 1 }}
+          transition={{ duration: 3, delay: 0.8, ease: luxuryEase }}
+        />
+        <motion.path 
+          d="M35 35 L65 65 M65 35 L35 65" 
+          initial={{ pathLength: 0, opacity: 0 }}
+          animate={{ pathLength: 1, opacity: 1 }}
+          transition={{ duration: 3, delay: 1.2, ease: luxuryEase }}
+        />
+      </g>
+
+      {/* Hero Typography overlay in SVG for perfect scaling */}
+      <motion.text 
+        x="50" y="44" 
+        className="font-verne-sans"
+        fontSize="1.8" 
+        fill="#EAF3E8" 
+        textAnchor="middle" 
+        letterSpacing="0.4em" 
+        opacity="0.6"
+        initial={{ opacity: 0, y: 2 }}
+        animate={{ opacity: 0.6, y: 0 }}
+        transition={{ duration: 1.5, delay: 1.5, ease: luxuryEase }}
+      >
+        FIRST ACCESS · SPRING 2026
+      </motion.text>
+      
+      <motion.text 
+        x="50" y="55" 
+        className="font-verne-serif"
+        fontSize="10" 
+        fill="#EAF3E8" 
+        textAnchor="middle" 
+        letterSpacing="0.2em"
+        initial={{ opacity: 0, y: 5 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 1.5, delay: 1.8, ease: luxuryEase }}
+      >
+        VERNE
+      </motion.text>
+      
+      <motion.text 
+        x="50" y="62" 
+        className="font-verne-serif italic"
+        fontSize="2.2" 
+        fill="#EAF3E8" 
+        textAnchor="middle" 
+        opacity="0.7"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 0.7 }}
+        transition={{ duration: 1.5, delay: 2.2, ease: luxuryEase }}
+      >
+        Rarefied. Artisanal. Yours.
+      </motion.text>
+    </svg>
+  );
+}
+
+// --- Product Image Placeholder ---
+function ProductImage({ type, bgColor }) {
+  return (
+    <motion.div 
+      className="relative aspect-[4/5] overflow-hidden bg-white group cursor-pointer"
+      whileHover={{ scale: 1.03 }}
+      transition={{ duration: 0.8, ease: luxuryEase }}
+    >
+      <div 
+        className="absolute inset-0 transition-opacity duration-700"
+        style={{ backgroundColor: bgColor, opacity: 0.3 }}
+      />
+      <div className="absolute inset-4 md:inset-6 border border-[#0d2e26]/10 flex flex-col items-center justify-center text-[#0d2e26]">
+        <motion.div 
+          className="w-px h-12 bg-[#0d2e26]/20 mb-6"
+          initial={{ scaleY: 0 }}
+          whileInView={{ scaleY: 1 }}
+          transition={{ duration: 1, delay: 0.2 }}
+        />
+        <motion.span 
+          className="font-verne-serif text-lg md:text-xl font-light tracking-widest opacity-80"
+          initial={{ opacity: 0, y: 10 }}
+          whileInView={{ opacity: 0.8, y: 0 }}
+          transition={{ duration: 0.8, delay: 0.3 }}
+        >
+          {type}
+        </motion.span>
+        <motion.span 
+          className="font-verne-sans mt-4 text-[9px] tracking-[0.3em] uppercase opacity-40"
+          initial={{ opacity: 0 }}
+          whileInView={{ opacity: 0.4 }}
+          transition={{ duration: 0.8, delay: 0.5 }}
+        >
+          Fine Jewelry
+        </motion.span>
+      </div>
+    </motion.div>
+  );
+}
+
+// --- Animated Section Wrapper ---
+function AnimatedSection({ children, className = "", delay = 0 }) {
+  const ref = useRef(null);
+  const isInView = useInView(ref, { once: true, margin: "-100px" });
+
+  return (
+    <motion.div
+      ref={ref}
+      initial={{ opacity: 0, y: 30 }}
+      animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 30 }}
+      transition={{ duration: 1, delay, ease: luxuryEase }}
+      className={className}
+    >
+      {children}
+    </motion.div>
+  );
+}
+
+// --- Navigation ---
+function Navigation() {
+  const [isScrolled, setIsScrolled] = useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setIsScrolled(window.scrollY > 80);
+    };
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
+  return (
+    <>
+      <motion.nav
+        initial={{ y: -100, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        transition={{ duration: 1, ease: luxuryEase }}
+        className={`fixed top-0 left-0 right-0 z-50 transition-all duration-700 ${
+          isScrolled ? "bg-[#EAF3E8]/95 backdrop-blur-md shadow-sm py-4" : "bg-transparent py-8"
+        }`}
+      >
+        <div className="max-w-7xl mx-auto px-6 md:px-12 flex items-center justify-between">
+          <motion.a 
+            href="#"
+            className={`font-verne-serif text-xl tracking-[0.4em] uppercase transition-colors duration-500 ${isScrolled ? "text-[#0d2e26]" : "text-[#EAF3E8]"}`}
+            whileHover={{ opacity: 0.7 }}
+          >
+            VERNE
+          </motion.a>
+          
+          <div className="hidden md:flex items-center gap-10">
+            {["Collection", "About", "FAQ"].map((item) => (
+              <a 
+                key={item}
+                href={`#${item.toLowerCase()}`} 
+                className={`font-verne-sans text-[10px] tracking-[0.25em] uppercase transition-colors duration-300 relative group ${isScrolled ? "text-[#0d2e26]/70 hover:text-[#0d2e26]" : "text-[#EAF3E8]/70 hover:text-[#EAF3E8]"}`}
+              >
+                {item}
+                <span className={`absolute -bottom-2 left-1/2 w-0 h-[1px] bg-current transition-all duration-300 group-hover:w-full group-hover:left-0`} />
+              </a>
+            ))}
+            <a
+              href="#reserve"
+              className={`font-verne-sans text-[10px] tracking-[0.25em] uppercase px-8 py-3 transition-all duration-500 border ${
+                isScrolled 
+                  ? "border-[#0d2e26] text-[#0d2e26] hover:bg-[#0d2e26] hover:text-[#EAF3E8]" 
+                  : "border-[#EAF3E8]/50 text-[#EAF3E8] hover:bg-[#EAF3E8] hover:text-[#0d2e26]"
+              }`}
+            >
+              Reserve
+            </a>
+          </div>
+
+          <button
+            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+            className={`md:hidden p-2 transition-colors duration-500 ${isScrolled || isMobileMenuOpen ? "text-[#0d2e26]" : "text-[#EAF3E8]"}`}
+          >
+            {isMobileMenuOpen ? <X className="w-6 h-6 stroke-[1]" /> : <Menu className="w-6 h-6 stroke-[1]" />}
+          </button>
+        </div>
+      </motion.nav>
+
+      {/* Mobile Menu */}
+      <AnimatePresence>
+        {isMobileMenuOpen && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.5, ease: luxuryEase }}
+            className="fixed inset-0 z-40 bg-[#EAF3E8] pt-24 md:hidden"
+          >
+            <div className="flex flex-col items-center justify-center h-full gap-10 pb-20">
+              {["Collection", "About", "FAQ"].map((item) => (
+                <a 
+                  key={item}
+                  href={`#${item.toLowerCase()}`} 
+                  onClick={() => setIsMobileMenuOpen(false)}
+                  className="font-verne-serif text-2xl tracking-[0.1em] text-[#0d2e26] hover:opacity-70 transition-opacity"
+                >
+                  {item}
+                </a>
+              ))}
+              <a
+                href="#reserve"
+                onClick={() => setIsMobileMenuOpen(false)}
+                className="mt-8 font-verne-sans text-[11px] tracking-[0.3em] uppercase px-10 py-4 border border-[#0d2e26] text-[#0d2e26] hover:bg-[#0d2e26] hover:text-[#EAF3E8] transition-colors"
+              >
+                Reserve Your Piece
+              </a>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </>
+  );
+}
+
+// --- Hero Section ---
+function HeroSection() {
+  const { scrollY } = useScroll();
+  const y = useTransform(scrollY, [0, 800], [0, 250]);
+  const opacity = useTransform(scrollY, [0, 500], [1, 0]);
+
+  return (
+    <section className="relative h-screen overflow-hidden bg-[#0d2e26]">
+      <motion.div className="absolute inset-0" style={{ y }}>
+        <HeroSVG />
+      </motion.div>
+      
+      <motion.div 
+        className="absolute bottom-12 left-0 right-0 flex justify-center z-10"
+        style={{ opacity }}
+      >
+        <motion.div
+          animate={{ y: [0, 10, 0] }}
+          transition={{ duration: 2.5, repeat: Infinity, ease: "easeInOut" }}
+          className="cursor-pointer p-4"
+          onClick={() => window.scrollTo({ top: window.innerHeight, behavior: "smooth" })}
+        >
+          <div className="w-[1px] h-16 bg-gradient-to-b from-transparent via-[#EAF3E8]/50 to-transparent" />
+        </motion.div>
+      </motion.div>
+    </section>
+  );
+}
+
+// --- Hook Section ---
+function HookSection() {
+  return (
+    <section className="py-24 md:py-36 px-6 md:px-12 bg-[#EAF3E8]">
+      <div className="max-w-3xl mx-auto text-center">
+        <AnimatedSection>
+          <p className="font-verne-sans text-[10px] md:text-[11px] tracking-[0.35em] uppercase text-[#0d2e26]/60 mb-8 md:mb-12">
+            Spring Collection First Access
+          </p>
+        </AnimatedSection>
+        
+        <AnimatedSection delay={0.1}>
+          <h1 className="font-verne-serif text-3xl md:text-5xl lg:text-6xl leading-[1.2] md:leading-[1.1] text-[#0d2e26] mb-10 md:mb-14">
+            Three Pieces. <br className="hidden md:block" />
+            <span className="italic font-light">Five of Each.</span><br />
+            This List First.
+          </h1>
+        </AnimatedSection>
+        
+        <AnimatedSection delay={0.2}>
+          <div className="w-px h-16 bg-[#0d2e26]/20 mx-auto mb-10 md:mb-14" />
+        </AnimatedSection>
+        
+        <AnimatedSection delay={0.3}>
+          <p className="font-verne-serif text-lg md:text-xl font-light leading-relaxed text-[#0d2e26]/90 mb-8">
+            You are receiving this before anyone else. Verne's First Access is a private Founder release, small by design and intentional by nature. These pieces are never offered in this exact form again.
+          </p>
+          <p className="font-verne-serif text-lg md:text-xl font-light leading-relaxed text-[#0d2e26]/90">
+            Each piece is crafted by our master artisans using traditional techniques and ethically sourced materials. Yours alone from the moment you reserve it.
+          </p>
+        </AnimatedSection>
+      </div>
+    </section>
+  );
+}
+
+// --- Quote Section ---
+function QuoteSection() {
+  return (
+    <section className="px-6 md:px-12 bg-[#EAF3E8]">
+      <AnimatedSection>
+        <div className="max-w-4xl mx-auto">
+          <div className="border-t border-b border-[#0d2e26]/10 py-20 md:py-32 relative">
+            <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 w-2 h-2 rotate-45 border border-[#0d2e26]/20 bg-[#EAF3E8]" />
+            <blockquote className="font-verne-serif text-2xl md:text-4xl italic font-light leading-relaxed text-center text-[#0d2e26]">
+              "March arrives without asking.<br />
+              The year is no longer a resolution.<br />
+              It is already a life being lived."
+            </blockquote>
+            <div className="absolute bottom-0 left-1/2 -translate-x-1/2 translate-y-1/2 w-2 h-2 rotate-45 border border-[#0d2e26]/20 bg-[#EAF3E8]" />
+          </div>
+        </div>
+      </AnimatedSection>
+    </section>
+  );
+}
+
+// --- Narrative & Expectation Section ---
+function ExpectationSection() {
+  const items = [
+    "8-Week Lead Time · Late Spring Delivery",
+    "Crafted to Order in 18K Solid Gold",
+    "Numbered Edition · Certificate of Authenticity",
+    "Complimentary Engraving & Atelier Credit",
+  ];
+
+  return (
+    <section id="about" className="py-24 md:py-36 px-6 md:px-12 bg-[#EAF3E8]">
+      <div className="max-w-2xl mx-auto text-center">
+        <AnimatedSection>
+          <p className="font-verne-serif text-lg md:text-xl font-light leading-relaxed text-[#0d2e26]/90 mb-20 md:mb-32">
+            Something shifts in early spring. The pace settles. The light changes. You begin to move through the day with more intention, and what you carry with you starts to matter in a different way.
+          </p>
+        </AnimatedSection>
+        
+        <AnimatedSection delay={0.1}>
+          <p className="font-verne-sans text-[10px] tracking-[0.3em] uppercase text-[#0d2e26]/50 mb-10 md:mb-12">
+            What to expect
+          </p>
+        </AnimatedSection>
+        
+        <div className="space-y-6 md:space-y-8">
+          {items.map((item, index) => (
+            <AnimatedSection key={index} delay={index * 0.1 + 0.2}>
+              <p className="font-verne-serif text-lg md:text-xl text-[#0d2e26] font-light tracking-wide">
+                {item}
+              </p>
+            </AnimatedSection>
+          ))}
+        </div>
+        
+        <AnimatedSection delay={0.6}>
+          <div className="w-16 h-px bg-[#0d2e26]/20 mx-auto my-12 md:my-16" />
+          <p className="font-verne-serif text-sm md:text-base italic font-light text-[#0d2e26]/70 tracking-wide">
+            First Access pricing is strictly reserved for this list.<br />
+            Pieces begin from a private pre-order rate shared after registration.
+          </p>
+        </AnimatedSection>
+      </div>
+    </section>
+  );
+}
+
+// --- Product Section ---
+function ProductSection() {
+  const [selectedProduct, setSelectedProduct] = useState(null);
+
+  const products = [
+    {
+      number: "01 / 03",
+      name: "Lys de Vie",
+      type: "Earrings",
+      material: "18K SOLID WHITE GOLD | NATURAL DIAMONDS",
+      description: "These are not earrings you put on for a room. The room notices. The pear-cut diamonds cluster like something gathered, not placed. The petal drop moves when you move. A small, brilliant thing that earns its weight every time you wear it.",
+      bgColor: "#eaf3ee",
+    },
+    {
+      number: "02 / 03",
+      name: "Flairis Ring",
+      type: "Signature Band",
+      material: "18K SOLID YELLOW GOLD | NATURAL DIAMONDS",
+      description: "A band that holds presence. Detailed enough to reward the person looking closely. The Flairis band sits on the hand like a quiet declaration. Warm gold, diamond-set signature motifs running its face, milgrain edges catching light at the edge of the eye.",
+      bgColor: "#f7f2e8",
+    },
+    {
+      number: "03 / 03",
+      name: "Flairis Pendant",
+      type: "Band Necklace",
+      material: "18K SOLID YELLOW GOLD | NATURAL DIAMONDS",
+      description: "For those who want the presence of the band as a dedicated necklace. The pendant keeps the same signature motif, milgrain edge, and pavé diamonds, refined to sit lightly at the collarbone. A piece you reach for when you want the symbolism of a band, held closer to the heart.",
+      bgColor: "#f7f2e8",
+    },
+  ];
+
+  useEffect(() => {
+    if (selectedProduct) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "unset";
+    }
+    return () => { document.body.style.overflow = "unset"; };
+  }, [selectedProduct]);
+
+  return (
+    <section id="collection" className="py-24 md:py-36 px-6 md:px-12 bg-[#EAF3E8]">
+      <div className="max-w-6xl mx-auto">
+        {products.map((product, index) => (
+          <div key={index} className="mb-24 md:mb-40 last:mb-0">
+            <AnimatedSection>
+              <div className="flex items-center gap-4 mb-12 md:mb-16">
+                <span className="font-verne-sans text-[9px] tracking-[0.3em] text-[#0d2e26]/50 uppercase">{product.number}</span>
+                <div className="flex-1 h-px bg-[#0d2e26]/10" />
+              </div>
+            </AnimatedSection>
+            
+            <div className={`grid md:grid-cols-12 gap-12 md:gap-24 items-center ${index % 2 !== 0 ? 'md:flex-row-reverse' : ''}`}>
+              <div className={`md:col-span-5 ${index % 2 !== 0 ? 'md:order-2' : ''}`}>
+                <AnimatedSection delay={0.1}>
+                  <div onClick={() => setSelectedProduct(product)}>
+                    <ProductImage type={product.name.toUpperCase()} bgColor={product.bgColor} />
+                  </div>
+                </AnimatedSection>
+              </div>
+              
+              <div className={`md:col-span-7 flex flex-col justify-center ${index % 2 !== 0 ? 'md:order-1 md:items-end md:text-right' : ''}`}>
+                <AnimatedSection delay={0.2}>
+                  <p className="font-verne-sans text-[10px] tracking-[0.3em] uppercase text-[#0d2e26]/60 mb-4">
+                    {product.type}
+                  </p>
+                </AnimatedSection>
+                
+                <AnimatedSection delay={0.3}>
+                  <h2 className="font-verne-serif text-4xl md:text-5xl lg:text-6xl text-[#0d2e26] mb-6">
+                    {product.name}
+                  </h2>
+                </AnimatedSection>
+                
+                <AnimatedSection delay={0.4}>
+                  <p className="font-verne-sans text-[9px] tracking-[0.2em] text-[#0d2e26]/70 mb-8 border-b border-[#0d2e26]/10 pb-6 inline-block">
+                    {product.material}
+                  </p>
+                </AnimatedSection>
+                
+                <AnimatedSection delay={0.5}>
+                  <p className="font-verne-serif text-lg md:text-xl font-light leading-relaxed text-[#0d2e26]/80 mb-10 max-w-xl">
+                    {product.description}
+                  </p>
+                </AnimatedSection>
+                
+                <AnimatedSection delay={0.6}>
+                  <button
+                    onClick={() => setSelectedProduct(product)}
+                    className="group relative inline-flex items-center justify-center px-10 py-4 border border-[#0d2e26] overflow-hidden"
+                  >
+                    <span className="absolute inset-0 bg-[#0d2e26] translate-y-[100%] group-hover:translate-y-0 transition-transform duration-500 ease-in-out" />
+                    <span className="relative font-verne-sans text-[10px] tracking-[0.25em] uppercase text-[#0d2e26] group-hover:text-[#EAF3E8] transition-colors duration-500">
+                      Explore Details
+                    </span>
+                  </button>
+                </AnimatedSection>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* Luxury Modal */}
+      <AnimatePresence>
+        {selectedProduct && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.5 }}
+            className="fixed inset-0 z-[100] flex items-center justify-center p-4 md:p-8 bg-[#0d2e26]/90 backdrop-blur-md"
+            onClick={() => setSelectedProduct(null)}
+          >
+            <motion.div
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: 30 }}
+              transition={{ duration: 0.7, ease: luxuryEase }}
+              className="bg-[#FAFAF7] w-full max-w-6xl max-h-[95vh] overflow-y-auto flex flex-col md:flex-row relative"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <button 
+                onClick={() => setSelectedProduct(null)}
+                className="absolute top-6 right-6 p-2 text-[#0d2e26]/50 hover:text-[#0d2e26] z-10 transition-colors"
+              >
+                <X className="w-8 h-8 stroke-[1]" />
+              </button>
+              
+              <div className="md:w-1/2 p-12 md:p-20 flex items-center justify-center bg-white">
+                <div className="w-full max-w-md">
+                  <ProductImage type={selectedProduct.name.toUpperCase()} bgColor={selectedProduct.bgColor} />
+                </div>
+              </div>
+              
+              <div className="md:w-1/2 p-12 md:p-20 flex flex-col justify-center border-l border-[#0d2e26]/5">
+                <span className="font-verne-sans text-[9px] tracking-[0.4em] uppercase text-[#0d2e26]/50 mb-4">
+                  Collection {selectedProduct.number.split(" / ")[0]}
+                </span>
+                <h3 className="font-verne-serif text-4xl md:text-5xl text-[#0d2e26] mb-6">
+                  {selectedProduct.name}
+                </h3>
+                <p className="font-verne-sans text-[10px] tracking-[0.2em] uppercase text-[#0d2e26]/70 mb-10 pb-10 border-b border-[#0d2e26]/10">
+                  {selectedProduct.material}
+                </p>
+                <p className="font-verne-serif text-xl font-light leading-relaxed text-[#0d2e26]/80 mb-12">
+                  {selectedProduct.description}
+                </p>
+                
+                <div className="mt-auto">
+                  <button 
+                    className="w-full py-5 bg-[#0d2e26] hover:bg-[#15463a] text-[#EAF3E8] font-verne-sans text-[11px] tracking-[0.3em] uppercase transition-colors duration-500"
+                  >
+                    Request Reservation
+                  </button>
+                  <p className="text-center font-verne-serif italic text-sm text-[#0d2e26]/50 mt-6 tracking-wide">
+                    Subject to edition availability
+                  </p>
+                </div>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </section>
+  );
+}
+
+// --- Benefits Section ---
+function BenefitsSection() {
+  const benefits = [
+    "A private, preferred rate reserved exclusively for this list.",
+    "Complimentary engraving of your name, date, or word.",
+    "Individually certified number and signed certificate.",
+    "A personal letter from the Founder, worth keeping.",
+    "Complimentary signature Verne gift wrapping.",
+    "$200 Atelier Credit toward a future Verne piece."
+  ];
+
+  return (
+    <section className="py-24 md:py-32 px-6 md:px-12 bg-[#EAF3E8]">
+      <AnimatedSection>
+        <div className="max-w-4xl mx-auto">
+          <div className="bg-[#f7f2e8] border border-[#0d2e26]/5 p-12 md:p-24 relative overflow-hidden">
+            <div className="absolute top-0 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-[#0d2e26]/20 to-transparent" />
+            
+            <p className="font-verne-sans text-[10px] tracking-[0.3em] uppercase text-[#0d2e26]/50 mb-16 text-center">
+              The Founder's Privileges
+            </p>
+            
+            <div className="grid md:grid-cols-2 gap-x-16 gap-y-10">
+              {benefits.map((benefit, index) => (
+                <motion.div
+                  key={index}
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.8, delay: index * 0.1, ease: luxuryEase }}
+                  viewport={{ once: true }}
+                  className="flex items-start gap-6"
+                >
+                  <div className="w-1 h-1 bg-[#0d2e26]/30 mt-3 flex-shrink-0 rotate-45" />
+                  <p className="font-verne-serif text-lg md:text-xl font-light leading-relaxed text-[#0d2e26]">
+                    {benefit}
+                  </p>
+                </motion.div>
+              ))}
+            </div>
+            
+            <div className="absolute bottom-0 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-[#0d2e26]/20 to-transparent" />
+          </div>
+        </div>
+      </AnimatedSection>
+    </section>
+  );
+}
+
+// --- Engraving Atelier (Gemini AI) ---
+function EngravingAtelierSection() {
+  const [sentiment, setSentiment] = useState("");
+  const [engravings, setEngravings] = useState([]);
+  const [isGenerating, setIsGenerating] = useState(false);
+  const [error, setError] = useState("");
+
+  const handleGenerate = async () => {
+    if (!sentiment.trim()) return;
+    setIsGenerating(true);
+    setError("");
+    setEngravings([]);
+
+    const systemPrompt = `You are the master engraver for Verne, an exclusive, luxury fine jewelry house.
+    The user will provide a sentiment, memory, or feeling they want captured on their bespoke piece.
+    Suggest 3 elegant, minimalist engravings (absolute maximum of 3 words each) that perfectly encapsulate their sentiment.
+    Provide one suggestion in Latin, one in French, and one in English. 
+    Return the response as structured JSON.`;
+
+    const schema = {
+      type: "OBJECT",
+      properties: {
+        suggestions: {
+          type: "ARRAY",
+          items: {
+            type: "OBJECT",
+            properties: {
+              language: { type: "STRING" },
+              phrase: { type: "STRING" },
+              meaning: { type: "STRING" }
+            }
+          }
+        }
+      }
+    };
+
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`;
+    
+    try {
+      const data = await fetchWithRetry(url, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          contents: [{ parts: [{ text: `Sentiment: ${sentiment}` }] }],
+          systemInstruction: { parts: [{ text: systemPrompt }] },
+          generationConfig: { responseMimeType: "application/json", responseSchema: schema }
+        }),
+      });
+      
+      const rawText = data.candidates?.[0]?.content?.parts?.[0]?.text;
+      if (rawText) {
+        const parsed = JSON.parse(rawText);
+        setEngravings(parsed.suggestions || []);
+      } else {
+        throw new Error("Invalid response");
+      }
+    } catch (err) {
+      setError("Our artisan engraver is momentarily stepping away. Please try again.");
+    } finally {
+      setIsGenerating(false);
+    }
+  };
+
+  return (
+    <section className="py-24 md:py-32 px-6 md:px-12 bg-[#EAF3E8]">
+      <AnimatedSection>
+        <div className="max-w-3xl mx-auto border border-[#0d2e26]/10 p-10 md:p-20 relative bg-white/40">
+          <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-[#EAF3E8] px-6">
+            <Sparkles className="w-5 h-5 text-[#0d2e26]/30" strokeWidth={1} />
+          </div>
+          
+          <div className="text-center mb-12">
+            <p className="font-verne-sans text-[10px] tracking-[0.3em] uppercase text-[#0d2e26]/50 mb-6">
+              The Artisan's Atelier
+            </p>
+            <h3 className="font-verne-serif text-3xl md:text-4xl text-[#0d2e26] mb-6">
+              Discover Your Engraving
+            </h3>
+            <p className="font-verne-serif text-lg font-light text-[#0d2e26]/80 max-w-lg mx-auto leading-relaxed">
+              Share the sentiment you wish to hold close, and our master engraver will suggest the perfect words for your piece.
+            </p>
+          </div>
+
+          <div className="flex flex-col md:flex-row gap-6 items-center justify-center mb-12">
+            <input
+              type="text"
+              value={sentiment}
+              onChange={(e) => setSentiment(e.target.value)}
+              placeholder="e.g., A reminder of my own resilience..."
+              className="w-full md:w-2/3 bg-transparent border-b border-[#0d2e26]/30 text-[#0d2e26] px-2 py-4 focus:outline-none focus:border-[#0d2e26] placeholder-[#0d2e26]/30 font-verne-serif text-lg italic transition-colors"
+              disabled={isGenerating}
+            />
+            <button
+              onClick={handleGenerate}
+              disabled={isGenerating || !sentiment.trim()}
+              className="w-full md:w-auto shrink-0 px-8 py-4 bg-[#0d2e26] text-[#EAF3E8] font-verne-sans text-[10px] tracking-[0.25em] uppercase hover:bg-[#15463a] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {isGenerating ? "Consulting..." : "Inspire Me"}
+            </button>
+          </div>
+
+          <AnimatePresence>
+            {error && (
+              <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="text-center font-verne-serif text-sm text-red-800/60 font-light mb-4">
+                {error}
+              </motion.p>
+            )}
+
+            {engravings.length > 0 && (
+              <motion.div
+                initial={{ opacity: 0, y: 30 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.8, ease: luxuryEase }}
+                className="grid gap-6 mt-12"
+              >
+                {engravings.map((eng, idx) => (
+                  <div key={idx} className="bg-[#f7f2e8]/50 p-8 border border-[#0d2e26]/10 text-center">
+                    <p className="font-verne-sans text-[9px] tracking-[0.3em] uppercase text-[#0d2e26]/40 mb-4">{eng.language}</p>
+                    <p className="font-verne-serif text-2xl md:text-3xl text-[#0d2e26] mb-4">"{eng.phrase}"</p>
+                    <p className="font-verne-serif text-base font-light text-[#0d2e26]/70 italic">{eng.meaning}</p>
+                  </div>
+                ))}
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
+      </AnimatedSection>
+    </section>
+  );
+}
+
+// --- CTA Section ---
+function CTASection() {
+  return (
+    <section id="reserve" className="py-24 md:py-36 px-6 md:px-12 bg-[#EAF3E8]">
+      <div className="max-w-3xl mx-auto text-center">
+        <AnimatedSection>
+          <div className="w-px h-24 bg-[#0d2e26]/20 mx-auto mb-16" />
+        </AnimatedSection>
+        
+        <AnimatedSection delay={0.1}>
+          <h2 className="font-verne-serif text-3xl md:text-5xl text-[#0d2e26] mb-8">
+            Secure Your Place
+          </h2>
+          <p className="font-verne-serif text-xl md:text-2xl italic font-light leading-relaxed text-[#0d2e26]/80 mb-16">
+            Five pieces per design.<br />
+            Once claimed, this form of the piece will not return.
+          </p>
+        </AnimatedSection>
+        
+        <AnimatedSection delay={0.2}>
+          <a
+            href="#reserve-form"
+            className="group relative inline-flex items-center justify-center px-16 py-6 border border-[#0d2e26] overflow-hidden"
+          >
+            <span className="absolute inset-0 bg-[#0d2e26] translate-y-[100%] group-hover:translate-y-0 transition-transform duration-700 ease-[0.16,1,0.3,1]" />
+            <span className="relative font-verne-sans text-[11px] tracking-[0.3em] uppercase text-[#0d2e26] group-hover:text-[#EAF3E8] transition-colors duration-700">
+              Reserve Your Piece
+            </span>
+          </a>
+        </AnimatedSection>
+        
+        <AnimatedSection delay={0.3}>
+          <p className="mt-10 font-verne-serif text-sm md:text-base italic font-light text-[#0d2e26]/60 tracking-wide">
+            One click. We confirm your place and share First Access pricing privately.
+          </p>
+        </AnimatedSection>
+      </div>
+    </section>
+  );
+}
+
+// --- FAQ Component ---
+function FAQItem({ question, answer, isOpen, onToggle }) {
+  return (
+    <div className="border-b border-[#0d2e26]/10 last:border-b-0">
+      <button
+        onClick={onToggle}
+        className="w-full py-8 md:py-10 flex items-center justify-between gap-6 text-left group"
+      >
+        <h3 className="font-verne-serif text-xl md:text-2xl text-[#0d2e26] group-hover:opacity-70 transition-opacity font-light">
+          {question}
+        </h3>
+        <motion.div
+          animate={{ rotate: isOpen ? 180 : 0 }}
+          transition={{ duration: 0.5, ease: luxuryEase }}
+          className="flex-shrink-0"
+        >
+          <ChevronDown className="w-5 h-5 text-[#0d2e26]/40 stroke-[1]" />
+        </motion.div>
+      </button>
+      <AnimatePresence initial={false}>
+        {isOpen && (
+          <motion.div
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: "auto", opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            transition={{ duration: 0.5, ease: luxuryEase }}
+            className="overflow-hidden"
+          >
+            <p className="pb-10 font-verne-serif text-lg font-light leading-relaxed text-[#0d2e26]/80 pr-12">
+              {answer}
+            </p>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
+  );
+}
+
+function FAQSection() {
+  const [openIndex, setOpenIndex] = useState(null);
+  
+  const faqs = [
+    { question: "When will my piece arrive?", answer: "Each piece is crafted to order. You can expect delivery in late spring, approximately 8 weeks from the close of First Access." },
+    { question: "How does pre-order pricing work?", answer: "After you register your interest, we share First Access pricing privately. Payment is confirmed before production begins. No charge until you approve." },
+    { question: "Can I personalize my piece?", answer: "Yes. Complimentary engraving is included for all First Access clients. You choose the word, date, or name. We take care of the rest." },
+    { question: "What if only five are available?", answer: "Five pieces per design is the edition limit. Once claimed, this form of the piece does not return. If you are on the fence, write to us." },
+  ];
+
+  return (
+    <section id="faq" className="py-24 md:py-36 px-6 md:px-12 bg-[#EAF3E8]">
+      <div className="max-w-3xl mx-auto">
+        <AnimatedSection>
+          <p className="font-verne-sans text-[10px] tracking-[0.3em] uppercase text-[#0d2e26]/50 text-center mb-16">
+            A few things worth knowing
+          </p>
+        </AnimatedSection>
+        
+        <div className="divide-y divide-[#0d2e26]/10 border-t border-b border-[#0d2e26]/10">
+          {faqs.map((faq, index) => (
+            <FAQItem
+              key={index}
+              question={faq.question}
+              answer={faq.answer}
+              isOpen={openIndex === index}
+              onToggle={() => setOpenIndex(openIndex === index ? null : index)}
+            />
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+// --- Footer ---
+function Footer() {
+  return (
+    <footer className="bg-[#0d2e26] pt-24 pb-12 px-6 md:px-12">
+      <div className="max-w-6xl mx-auto">
+        <div className="text-center mb-16">
+          <p className="font-verne-serif text-3xl tracking-[0.4em] uppercase text-[#f7f2e8]">
+            VERNE
+          </p>
+        </div>
+        
+        <div className="flex flex-wrap justify-center gap-10 mb-20">
+          {["Collection", "Our Story", "Instagram", "Client Services"].map((item, index) => (
+            <a
+              key={index}
+              href="#"
+              className="font-verne-sans text-[9px] tracking-[0.2em] uppercase text-[#f7f2e8]/60 hover:text-[#f7f2e8] transition-colors"
+            >
+              {item}
+            </a>
+          ))}
+        </div>
+        
+        <div className="text-center space-y-6">
+          <p className="font-verne-serif text-sm font-light text-[#f7f2e8]/40 tracking-wide">
+            Verne Group LLC · Raleigh, North Carolina 27609, United States<br />
+            client.relations@vernejewels.com
+          </p>
+          <div className="flex justify-center gap-6 mt-8">
+            <a href="#" className="font-verne-sans text-[9px] tracking-widest text-[#f7f2e8]/40 hover:text-[#f7f2e8]/70 uppercase transition-colors">
+              Privacy
+            </a>
+            <a href="#" className="font-verne-sans text-[9px] tracking-widest text-[#f7f2e8]/40 hover:text-[#f7f2e8]/70 uppercase transition-colors">
+              Terms
+            </a>
+          </div>
+        </div>
+      </div>
+    </footer>
+  );
+}
+
+// --- Main App Component ---
+export default function App() {
+  return (
+    <main className="min-h-screen bg-[#EAF3E8] overflow-x-hidden selection:bg-[#0d2e26] selection:text-[#EAF3E8]">
+      <FontStyles />
+      <Navigation />
+      <HeroSection />
+      <HookSection />
+      <QuoteSection />
+      <ExpectationSection />
+      <ProductSection />
+      <BenefitsSection />
+      <EngravingAtelierSection />
+      <CTASection />
+      <FAQSection />
+      
+      {/* Closing Statement */}
+      <section className="py-32 px-6 md:px-12 bg-[#EAF3E8] text-center border-t border-[#0d2e26]/5">
+        <p className="font-verne-serif text-2xl md:text-3xl italic font-light text-[#0d2e26] mb-12">
+          Choose your talisman for the season ahead.
+        </p>
+        <div className="w-1 h-1 bg-[#0d2e26]/30 rotate-45 mx-auto" />
+      </section>
+
+      <Footer />
+    </main>
+  );
+}
