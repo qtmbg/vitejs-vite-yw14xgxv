@@ -38,6 +38,7 @@ type Product = {
   description: string;
   imageSrc: string;
   imageHoverSrc?: string;
+  bgColor?: string;
 };
 
 type ProductImageProps = {
@@ -538,6 +539,7 @@ function ProductSection() {
         "These are not earrings you put on for a room. The room notices. The pear-cut diamonds cluster like something gathered, not placed. The petal drop moves when you move. A small, brilliant thing that earns its weight every time you wear it.",
       imageSrc: "/lys-de-vie.jpg",
       imageHoverSrc: "/lys-de-vie-2.jpg",
+      bgColor: "#eaf3ee",
     },
     {
       number: "02 / 03",
@@ -548,6 +550,7 @@ function ProductSection() {
         "A band that holds presence. Detailed enough to reward the person looking closely. The Flairis band sits on the hand like a quiet declaration. Warm gold, diamond-set signature motifs running its face, milgrain edges catching light at the edge of the eye.",
       imageSrc: "/flairis-ring.jpg",
       imageHoverSrc: "/flairis-ring-2.jpg",
+      bgColor: "#f7f2e8",
     },
     {
       number: "03 / 03",
@@ -558,6 +561,7 @@ function ProductSection() {
         "For those who want the presence of the band as a dedicated necklace. The pendant keeps the same signature motif, milgrain edge, and pavé diamonds, refined to sit lightly at the collarbone. A piece you reach for when you want the symbolism of a band, held closer to the heart.",
       imageSrc: "/flairis-pendant.jpg",
       imageHoverSrc: "/flairis-pendant-2.jpg",
+      bgColor: "#f7f2e8",
     },
   ];
 
@@ -684,7 +688,7 @@ function ProductSection() {
 
               <div className="md:w-5/12 p-8 pt-20 md:p-12 lg:p-24 flex items-center justify-center bg-white">
                 <div className="w-full max-w-[280px] md:max-w-sm">
-                  {/* Notice we don't pass imageHoverSrc here, so it remains static in the modal */}
+                  {/* Do not pass imageHoverSrc here so modal stays static */}
                   <ProductImage
                     type={selectedProduct.name.toUpperCase()}
                     imageSrc={selectedProduct.imageSrc}
