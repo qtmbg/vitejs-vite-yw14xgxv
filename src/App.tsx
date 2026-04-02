@@ -104,6 +104,23 @@ const FontStyles = () => (
       background: #0d2e26;
       color: #EAF3E8;
     }
+
+    /* Subtle Paper Texture */
+    .bg-paper {
+      position: relative;
+    }
+    .bg-paper::before {
+      content: "";
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      opacity: 0.03;
+      pointer-events: none;
+      z-index: 1;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+    }
   `}</style>
 );
 
@@ -113,6 +130,7 @@ function HeroSVG() {
       viewBox="0 0 100 100"
       className="w-full h-full object-cover"
       preserveAspectRatio="xMidYMid slice"
+      aria-hidden="true"
     >
       <defs>
         <linearGradient id="heroGradient" x1="0%" y1="0%" x2="0%" y2="100%">
@@ -121,37 +139,31 @@ function HeroSVG() {
           <stop offset="100%" stopColor="#0d2e26" />
         </linearGradient>
         <linearGradient id="goldGlow" x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%" stopColor="#f7f2e8" stopOpacity="0.1" />
-          <stop offset="50%" stopColor="#f7f2e8" stopOpacity="0.4" />
-          <stop offset="100%" stopColor="#f7f2e8" stopOpacity="0.1" />
+          <stop offset="0%" stopColor="#f7f2e8" stopOpacity="0.05" />
+          <stop offset="50%" stopColor="#f7f2e8" stopOpacity="0.2" />
+          <stop offset="100%" stopColor="#f7f2e8" stopOpacity="0.05" />
         </linearGradient>
       </defs>
       <rect width="100" height="100" fill="url(#heroGradient)" />
 
-      <g stroke="url(#goldGlow)" strokeWidth="0.05" fill="none" opacity="0.6">
+      <g stroke="url(#goldGlow)" strokeWidth="0.03" fill="none" opacity="0.4">
         <motion.path
           d="M50 20 L80 50 L50 80 L20 50 Z"
           initial={{ pathLength: 0, opacity: 0 }}
           animate={{ pathLength: 1, opacity: 1 }}
-          transition={{ duration: 3, ease: luxuryEase }}
+          transition={{ duration: 4, ease: luxuryEase }}
         />
         <motion.path
           d="M50 20 L50 80"
           initial={{ pathLength: 0, opacity: 0 }}
           animate={{ pathLength: 1, opacity: 1 }}
-          transition={{ duration: 3, delay: 0.5, ease: luxuryEase }}
+          transition={{ duration: 4, delay: 0.5, ease: luxuryEase }}
         />
         <motion.path
           d="M20 50 L80 50"
           initial={{ pathLength: 0, opacity: 0 }}
           animate={{ pathLength: 1, opacity: 1 }}
-          transition={{ duration: 3, delay: 0.8, ease: luxuryEase }}
-        />
-        <motion.path
-          d="M35 35 L65 65 M65 35 L35 65"
-          initial={{ pathLength: 0, opacity: 0 }}
-          animate={{ pathLength: 1, opacity: 1 }}
-          transition={{ duration: 3, delay: 1.2, ease: luxuryEase }}
+          transition={{ duration: 4, delay: 0.8, ease: luxuryEase }}
         />
       </g>
 
@@ -159,14 +171,14 @@ function HeroSVG() {
         x="50"
         y="44"
         className="font-verne-sans"
-        fontSize="1.8"
+        fontSize="1.5"
         fill="#EAF3E8"
         textAnchor="middle"
-        letterSpacing="0.4em"
-        opacity="0.6"
+        letterSpacing="0.5em"
+        opacity="0.5"
         initial={{ opacity: 0, y: 2 }}
-        animate={{ opacity: 0.6, y: 0 }}
-        transition={{ duration: 1.5, delay: 1.5, ease: luxuryEase }}
+        animate={{ opacity: 0.5, y: 0 }}
+        transition={{ duration: 2, delay: 1, ease: luxuryEase }}
       >
         FIRST ACCESS · SPRING 2026
       </motion.text>
@@ -175,28 +187,28 @@ function HeroSVG() {
         x="50"
         y="55"
         className="font-verne-serif"
-        fontSize="10"
+        fontSize="12"
         fill="#EAF3E8"
         textAnchor="middle"
-        letterSpacing="0.2em"
-        initial={{ opacity: 0, y: 5 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 1.5, delay: 1.8, ease: luxuryEase }}
+        letterSpacing="0.25em"
+        initial={{ opacity: 0, scale: 0.95 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ duration: 2.5, delay: 1.2, ease: luxuryEase }}
       >
         VERNE
       </motion.text>
 
       <motion.text
         x="50"
-        y="62"
+        y="63"
         className="font-verne-serif italic"
-        fontSize="2.2"
+        fontSize="2.4"
         fill="#EAF3E8"
         textAnchor="middle"
-        opacity="0.7"
+        opacity="0.6"
         initial={{ opacity: 0 }}
-        animate={{ opacity: 0.7 }}
-        transition={{ duration: 1.5, delay: 2.2, ease: luxuryEase }}
+        animate={{ opacity: 0.6 }}
+        transition={{ duration: 2, delay: 1.8, ease: luxuryEase }}
       >
         Rarefied. Artisanal. Yours.
       </motion.text>
@@ -207,34 +219,34 @@ function HeroSVG() {
 function ProductImage({ type, bgColor }: ProductImageProps) {
   return (
     <motion.div
-      className="relative aspect-[4/5] overflow-hidden bg-white group cursor-pointer"
-      whileHover={{ scale: 1.03 }}
+      className="relative aspect-[4/5] overflow-hidden bg-white group shadow-sm hover:shadow-xl transition-shadow duration-700"
+      whileHover={{ scale: 1.02 }}
       transition={{ duration: 0.8, ease: luxuryEase }}
     >
       <div
-        className="absolute inset-0 transition-opacity duration-700"
-        style={{ backgroundColor: bgColor, opacity: 0.3 }}
+        className="absolute inset-0 transition-opacity duration-1000"
+        style={{ backgroundColor: bgColor, opacity: 0.25 }}
       />
-      <div className="absolute inset-4 md:inset-6 border border-[#0d2e26]/10 flex flex-col items-center justify-center text-[#0d2e26]">
+      <div className="absolute inset-6 border border-[#0d2e26]/5 flex flex-col items-center justify-center text-[#0d2e26]">
         <motion.div
-          className="w-px h-12 bg-[#0d2e26]/20 mb-6"
+          className="w-px h-12 bg-[#0d2e26]/10 mb-6"
           initial={{ scaleY: 0 }}
           whileInView={{ scaleY: 1 }}
-          transition={{ duration: 1, delay: 0.2 }}
+          transition={{ duration: 1.5, delay: 0.2 }}
         />
         <motion.span
-          className="font-verne-serif text-lg md:text-xl font-light tracking-widest opacity-80"
+          className="font-verne-serif text-lg md:text-2xl font-light tracking-[0.2em] opacity-80 text-center px-4"
           initial={{ opacity: 0, y: 10 }}
           whileInView={{ opacity: 0.8, y: 0 }}
-          transition={{ duration: 0.8, delay: 0.3 }}
+          transition={{ duration: 1, delay: 0.3 }}
         >
           {type}
         </motion.span>
         <motion.span
-          className="font-verne-sans mt-4 text-[9px] tracking-[0.3em] uppercase opacity-40"
+          className="font-verne-sans mt-5 text-[8px] tracking-[0.4em] uppercase opacity-30"
           initial={{ opacity: 0 }}
-          whileInView={{ opacity: 0.4 }}
-          transition={{ duration: 0.8, delay: 0.5 }}
+          whileInView={{ opacity: 0.3 }}
+          transition={{ duration: 1, delay: 0.5 }}
         >
           Fine Jewelry
         </motion.span>
@@ -254,9 +266,9 @@ function AnimatedSection({
   return (
     <motion.div
       ref={ref}
-      initial={{ opacity: 0, y: 30 }}
-      animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 30 }}
-      transition={{ duration: 1, delay, ease: luxuryEase }}
+      initial={{ opacity: 0, y: 40 }}
+      animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 40 }}
+      transition={{ duration: 1.2, delay, ease: luxuryEase }}
       className={className}
     >
       {children}
@@ -281,45 +293,45 @@ function Navigation() {
       <motion.nav
         initial={{ y: -100, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
-        transition={{ duration: 1, ease: luxuryEase }}
+        transition={{ duration: 1.2, ease: luxuryEase }}
         className={`fixed top-0 left-0 right-0 z-50 transition-all duration-700 ${
           isScrolled
-            ? "bg-[#EAF3E8]/95 backdrop-blur-md shadow-sm py-4"
+            ? "bg-[#EAF3E8]/80 backdrop-blur-xl shadow-sm py-4 border-b border-[#0d2e26]/5"
             : "bg-transparent py-8"
         }`}
       >
         <div className="max-w-7xl mx-auto px-6 md:px-12 flex items-center justify-between">
           <motion.a
             href="#"
-            className={`font-verne-serif text-xl tracking-[0.4em] uppercase transition-colors duration-500 ${
+            className={`font-verne-serif text-xl md:text-2xl tracking-[0.45em] uppercase transition-colors duration-500 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[#0d2e26]/50 focus-visible:ring-offset-4 focus-visible:ring-offset-transparent rounded-sm ${
               isScrolled ? "text-[#0d2e26]" : "text-[#EAF3E8]"
             }`}
-            whileHover={{ opacity: 0.7 }}
+            whileHover={{ opacity: 0.6 }}
           >
             VERNE
           </motion.a>
 
-          <div className="hidden md:flex items-center gap-10">
+          <div className="hidden md:flex items-center gap-12">
             {["Collection", "About", "FAQ"].map((item) => (
               <a
                 key={item}
                 href={`#${item.toLowerCase()}`}
-                className={`font-verne-sans text-[10px] tracking-[0.25em] uppercase transition-colors duration-300 relative group ${
+                className={`font-verne-sans text-[10px] tracking-[0.3em] uppercase transition-colors duration-300 relative group focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[#0d2e26]/50 focus-visible:ring-offset-4 focus-visible:ring-offset-transparent rounded-sm ${
                   isScrolled
-                    ? "text-[#0d2e26]/70 hover:text-[#0d2e26]"
-                    : "text-[#EAF3E8]/70 hover:text-[#EAF3E8]"
+                    ? "text-[#0d2e26]/60 hover:text-[#0d2e26]"
+                    : "text-[#EAF3E8]/60 hover:text-[#EAF3E8]"
                 }`}
               >
                 {item}
-                <span className="absolute -bottom-2 left-1/2 w-0 h-[1px] bg-current transition-all duration-300 group-hover:w-full group-hover:left-0" />
+                <span className="absolute -bottom-2 left-0 w-0 h-[1px] bg-current transition-all duration-500 group-hover:w-full" />
               </a>
             ))}
             <a
               href="#reserve"
-              className={`font-verne-sans text-[10px] tracking-[0.25em] uppercase px-8 py-3 transition-all duration-500 border ${
+              className={`font-verne-sans text-[10px] tracking-[0.3em] uppercase px-10 py-3.5 transition-all duration-700 border focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0d2e26]/50 focus-visible:ring-offset-2 focus-visible:ring-offset-transparent ${
                 isScrolled
                   ? "border-[#0d2e26] text-[#0d2e26] hover:bg-[#0d2e26] hover:text-[#EAF3E8]"
-                  : "border-[#EAF3E8]/50 text-[#EAF3E8] hover:bg-[#EAF3E8] hover:text-[#0d2e26]"
+                  : "border-[#EAF3E8]/40 text-[#EAF3E8] hover:bg-[#EAF3E8] hover:text-[#0d2e26]"
               }`}
             >
               Reserve
@@ -328,14 +340,16 @@ function Navigation() {
 
           <button
             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-            className={`md:hidden p-2 transition-colors duration-500 ${
+            aria-label={isMobileMenuOpen ? "Close menu" : "Open menu"}
+            aria-expanded={isMobileMenuOpen}
+            className={`md:hidden p-2 transition-colors duration-500 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-current rounded-sm ${
               isScrolled || isMobileMenuOpen ? "text-[#0d2e26]" : "text-[#EAF3E8]"
             }`}
           >
             {isMobileMenuOpen ? (
-              <X className="w-6 h-6 stroke-[1]" />
+              <X className="w-6 h-6 stroke-[1.25]" aria-hidden="true" />
             ) : (
-              <Menu className="w-6 h-6 stroke-[1]" />
+              <Menu className="w-6 h-6 stroke-[1.25]" aria-hidden="true" />
             )}
           </button>
         </div>
@@ -344,10 +358,10 @@ function Navigation() {
       <AnimatePresence>
         {isMobileMenuOpen && (
           <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.5, ease: luxuryEase }}
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: 20 }}
+            transition={{ duration: 0.6, ease: luxuryEase }}
             className="fixed inset-0 z-40 bg-[#EAF3E8] pt-24 md:hidden"
           >
             <div className="flex flex-col items-center justify-center h-full gap-10 pb-20">
@@ -356,7 +370,7 @@ function Navigation() {
                   key={item}
                   href={`#${item.toLowerCase()}`}
                   onClick={() => setIsMobileMenuOpen(false)}
-                  className="font-verne-serif text-2xl tracking-[0.1em] text-[#0d2e26] hover:opacity-70 transition-opacity"
+                  className="font-verne-serif text-3xl tracking-[0.15em] text-[#0d2e26] hover:opacity-60 transition-opacity focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0d2e26]/30 px-4 py-2 rounded-sm"
                 >
                   {item}
                 </a>
@@ -364,7 +378,7 @@ function Navigation() {
               <a
                 href="#reserve"
                 onClick={() => setIsMobileMenuOpen(false)}
-                className="mt-8 font-verne-sans text-[11px] tracking-[0.3em] uppercase px-10 py-4 border border-[#0d2e26] text-[#0d2e26] hover:bg-[#0d2e26] hover:text-[#EAF3E8] transition-colors"
+                className="mt-10 font-verne-sans text-[11px] tracking-[0.4em] uppercase px-12 py-5 border border-[#0d2e26] text-[#0d2e26] hover:bg-[#0d2e26] hover:text-[#EAF3E8] transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0d2e26]/30"
               >
                 Reserve Your Piece
               </a>
@@ -378,8 +392,8 @@ function Navigation() {
 
 function HeroSection() {
   const { scrollY } = useScroll();
-  const y = useTransform(scrollY, [0, 800], [0, 250]);
-  const opacity = useTransform(scrollY, [0, 500], [1, 0]);
+  const y = useTransform(scrollY, [0, 800], [0, 300]);
+  const opacity = useTransform(scrollY, [0, 600], [1, 0]);
 
   return (
     <section className="relative h-screen overflow-hidden bg-[#0d2e26]">
@@ -388,19 +402,20 @@ function HeroSection() {
       </motion.div>
 
       <motion.div
-        className="absolute bottom-12 left-0 right-0 flex justify-center z-10"
+        className="absolute bottom-16 left-0 right-0 flex justify-center z-10"
         style={{ opacity }}
       >
-        <motion.div
-          animate={{ y: [0, 10, 0] }}
-          transition={{ duration: 2.5, repeat: Infinity, ease: "easeInOut" }}
-          className="cursor-pointer p-4"
+        <motion.button
+          aria-label="Scroll to discover"
+          animate={{ y: [0, 12, 0] }}
+          transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
+          className="cursor-pointer p-4 group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#EAF3E8]/30 rounded-full"
           onClick={() =>
             window.scrollTo({ top: window.innerHeight, behavior: "smooth" })
           }
         >
-          <div className="w-[1px] h-16 bg-gradient-to-b from-transparent via-[#EAF3E8]/50 to-transparent" />
-        </motion.div>
+          <div className="w-[1px] h-20 bg-gradient-to-b from-transparent via-[#EAF3E8]/30 to-transparent group-hover:via-[#EAF3E8]/60 transition-colors duration-500" />
+        </motion.button>
       </motion.div>
     </section>
   );
@@ -408,16 +423,16 @@ function HeroSection() {
 
 function HookSection() {
   return (
-    <section className="py-24 md:py-36 px-6 md:px-12 bg-[#EAF3E8]">
-      <div className="max-w-3xl mx-auto text-center">
+    <section className="pt-32 md:pt-48 pb-16 md:pb-24 px-6 md:px-12 bg-[#EAF3E8]">
+      <div className="max-w-4xl mx-auto text-center">
         <AnimatedSection>
-          <p className="font-verne-sans text-[10px] md:text-[11px] tracking-[0.35em] uppercase text-[#0d2e26]/60 mb-8 md:mb-12">
+          <p className="font-verne-sans text-[10px] md:text-[12px] tracking-[0.4em] uppercase text-[#0d2e26]/50 mb-10 md:mb-16">
             Spring Collection First Access
           </p>
         </AnimatedSection>
 
         <AnimatedSection delay={0.1}>
-          <h1 className="font-verne-serif text-3xl md:text-5xl lg:text-6xl leading-[1.2] md:leading-[1.1] text-[#0d2e26] mb-10 md:mb-14">
+          <h1 className="font-verne-serif text-4xl md:text-6xl lg:text-7xl leading-[1.15] md:leading-[1.1] text-[#0d2e26] mb-12 md:mb-16">
             Three Pieces. <br className="hidden md:block" />
             <span className="italic font-light">Five of Each.</span>
             <br />
@@ -426,19 +441,15 @@ function HookSection() {
         </AnimatedSection>
 
         <AnimatedSection delay={0.2}>
-          <div className="w-px h-16 bg-[#0d2e26]/20 mx-auto mb-10 md:mb-14" />
+          <div className="w-px h-20 bg-[#0d2e26]/10 mx-auto mb-12 md:mb-16" />
         </AnimatedSection>
 
-        <AnimatedSection delay={0.3}>
-          <p className="font-verne-serif text-lg md:text-xl font-light leading-relaxed text-[#0d2e26]/90 mb-8">
-            You are receiving this before anyone else. Verne&apos;s First Access
-            is a private Founder release, small by design and intentional by
-            nature. These pieces are never offered in this exact form again.
+        <AnimatedSection delay={0.3} className="max-w-3xl mx-auto">
+          <p className="font-verne-serif text-xl md:text-2xl font-light leading-[1.6] text-[#0d2e26]/80">
+            You are receiving this before anyone else. Five First Access reservations per design, offered at a private Founder&apos;s rate.
           </p>
-          <p className="font-verne-serif text-lg md:text-xl font-light leading-relaxed text-[#0d2e26]/90">
-            Each piece is crafted by our master artisans using traditional
-            techniques and ethically sourced materials. Yours alone from the
-            moment you reserve it.
+          <p className="font-verne-serif text-2xl md:text-3xl mt-10 text-[#0d2e26] italic font-light tracking-[0.02em]">
+            Intentionally limited. Released only once.
           </p>
         </AnimatedSection>
       </div>
@@ -446,71 +457,32 @@ function HookSection() {
   );
 }
 
-function QuoteSection() {
-  return (
-    <section className="px-6 md:px-12 bg-[#EAF3E8]">
-      <AnimatedSection>
-        <div className="max-w-4xl mx-auto">
-          <div className="border-t border-b border-[#0d2e26]/10 py-20 md:py-32 relative">
-            <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 w-2 h-2 rotate-45 border border-[#0d2e26]/20 bg-[#EAF3E8]" />
-            <blockquote className="font-verne-serif text-2xl md:text-4xl italic font-light leading-relaxed text-center text-[#0d2e26]">
-              &quot;March arrives without asking.
-              <br />
-              The year is no longer a resolution.
-              <br />
-              It is already a life being lived.&quot;
-            </blockquote>
-            <div className="absolute bottom-0 left-1/2 -translate-x-1/2 translate-y-1/2 w-2 h-2 rotate-45 border border-[#0d2e26]/20 bg-[#EAF3E8]" />
-          </div>
-        </div>
-      </AnimatedSection>
-    </section>
-  );
-}
-
 function ExpectationSection() {
   const items = [
-    "8-Week Lead Time · Late Spring Delivery",
-    "Crafted to Order in 18K Solid Gold",
-    "Numbered Edition · Certificate of Authenticity",
+    "Crafted in 18K solid gold.",
+    "Numbered editions. Certificate of Authenticity",
     "Complimentary Engraving & Atelier Credit",
+    "8-Week in Creation • Late spring delivery",
   ];
 
   return (
-    <section id="about" className="py-24 md:py-36 px-6 md:px-12 bg-[#EAF3E8]">
+    <section id="about" className="pt-16 md:pt-24 pb-32 md:pb-48 px-6 md:px-12 bg-[#EAF3E8]">
       <div className="max-w-2xl mx-auto text-center">
-        <AnimatedSection>
-          <p className="font-verne-serif text-lg md:text-xl font-light leading-relaxed text-[#0d2e26]/90 mb-20 md:mb-32">
-            Something shifts in early spring. The pace settles. The light
-            changes. You begin to move through the day with more intention, and
-            what you carry with you starts to matter in a different way.
-          </p>
-        </AnimatedSection>
-
         <AnimatedSection delay={0.1}>
-          <p className="font-verne-sans text-[10px] tracking-[0.3em] uppercase text-[#0d2e26]/50 mb-10 md:mb-12">
+          <p className="font-verne-sans text-[9px] tracking-[0.4em] uppercase text-[#0d2e26]/40 mb-12 md:mb-20">
             What to expect
           </p>
         </AnimatedSection>
 
-        <div className="space-y-6 md:space-y-8">
+        <div className="space-y-8 md:space-y-12">
           {items.map((item, index) => (
-            <AnimatedSection key={index} delay={index * 0.1 + 0.2}>
-              <p className="font-verne-serif text-lg md:text-xl text-[#0d2e26] font-light tracking-wide">
+            <AnimatedSection key={index} delay={index * 0.15 + 0.2}>
+              <p className="font-verne-serif text-xl md:text-2xl text-[#0d2e26] font-light tracking-[0.01em]">
                 {item}
               </p>
             </AnimatedSection>
           ))}
         </div>
-
-        <AnimatedSection delay={0.6}>
-          <div className="w-16 h-px bg-[#0d2e26]/20 mx-auto my-12 md:my-16" />
-          <p className="font-verne-serif text-sm md:text-base italic font-light text-[#0d2e26]/70 tracking-wide">
-            First Access pricing is strictly reserved for this list.
-            <br />
-            Pieces begin from a private pre-order rate shared after registration.
-          </p>
-        </AnimatedSection>
       </div>
     </section>
   );
@@ -559,61 +531,65 @@ function ProductSection() {
   return (
     <section
       id="collection"
-      className="py-24 md:py-36 px-6 md:px-12 bg-[#EAF3E8]"
+      className="py-32 md:py-48 px-6 md:px-12 bg-[#EAF3E8] border-t border-[#0d2e26]/5"
     >
-      <div className="max-w-6xl mx-auto">
+      <div className="max-w-7xl mx-auto">
         {products.map((product, index) => (
-          <div key={index} className="mb-24 md:mb-40 last:mb-0">
+          <div key={index} className="mb-32 md:mb-56 last:mb-0">
             <AnimatedSection>
-              <div className="flex items-center gap-4 mb-12 md:mb-16">
-                <span className="font-verne-sans text-[9px] tracking-[0.3em] text-[#0d2e26]/50 uppercase">
+              <div className="flex items-center gap-6 mb-16 md:mb-24">
+                <span className="font-verne-sans text-[10px] tracking-[0.4em] text-[#0d2e26]/30 uppercase">
                   {product.number}
                 </span>
-                <div className="flex-1 h-px bg-[#0d2e26]/10" />
+                <div className="flex-1 h-px bg-[#0d2e26]/5" />
               </div>
             </AnimatedSection>
 
-            <div className="grid md:grid-cols-12 gap-12 md:gap-24 items-center">
+            <div className="grid md:grid-cols-12 gap-12 md:gap-16 lg:gap-24 items-center">
               <div
-                className={`md:col-span-5 ${
+                className={`md:col-span-5 lg:col-span-4 ${
                   index % 2 !== 0 ? "md:order-2" : ""
                 }`}
               >
                 <AnimatedSection delay={0.1}>
-                  <div onClick={() => setSelectedProduct(product)}>
+                  <button 
+                    onClick={() => setSelectedProduct(product)}
+                    className="w-full max-w-[280px] md:max-w-none mx-auto text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0d2e26]/30 focus-visible:ring-offset-4 focus-visible:ring-offset-[#EAF3E8] block"
+                    aria-label={`Open details for ${product.name}`}
+                  >
                     <ProductImage
                       type={product.name.toUpperCase()}
                       bgColor={product.bgColor}
                     />
-                  </div>
+                  </button>
                 </AnimatedSection>
               </div>
 
               <div
-                className={`md:col-span-7 flex flex-col justify-center ${
-                  index % 2 !== 0 ? "md:order-1 md:items-end md:text-right" : ""
+                className={`md:col-span-7 lg:col-span-8 flex flex-col justify-center text-center md:text-left ${
+                  index % 2 !== 0 ? "md:order-1 md:items-end md:text-right" : "items-center md:items-start"
                 }`}
               >
                 <AnimatedSection delay={0.2}>
-                  <p className="font-verne-sans text-[10px] tracking-[0.3em] uppercase text-[#0d2e26]/60 mb-4">
+                  <p className="font-verne-sans text-[10px] tracking-[0.4em] uppercase text-[#0d2e26]/40 mb-6">
                     {product.type}
                   </p>
                 </AnimatedSection>
 
                 <AnimatedSection delay={0.3}>
-                  <h2 className="font-verne-serif text-4xl md:text-5xl lg:text-6xl text-[#0d2e26] mb-6">
+                  <h2 className="font-verne-serif text-5xl md:text-7xl text-[#0d2e26] mb-8 leading-tight">
                     {product.name}
                   </h2>
                 </AnimatedSection>
 
                 <AnimatedSection delay={0.4}>
-                  <p className="font-verne-sans text-[9px] tracking-[0.2em] text-[#0d2e26]/70 mb-8 border-b border-[#0d2e26]/10 pb-6 inline-block">
+                  <p className="font-verne-sans text-[9px] tracking-[0.3em] text-[#0d2e26]/60 mb-10 border-b border-[#0d2e26]/10 pb-8 inline-block uppercase">
                     {product.material}
                   </p>
                 </AnimatedSection>
 
                 <AnimatedSection delay={0.5}>
-                  <p className="font-verne-serif text-lg md:text-xl font-light leading-relaxed text-[#0d2e26]/80 mb-10 max-w-xl">
+                  <p className="font-verne-serif text-xl md:text-2xl font-light leading-relaxed text-[#0d2e26]/70 mb-12 max-w-2xl">
                     {product.description}
                   </p>
                 </AnimatedSection>
@@ -621,10 +597,10 @@ function ProductSection() {
                 <AnimatedSection delay={0.6}>
                   <button
                     onClick={() => setSelectedProduct(product)}
-                    className="group relative inline-flex items-center justify-center px-10 py-4 border border-[#0d2e26] overflow-hidden"
+                    className="group relative inline-flex items-center justify-center px-12 py-5 border border-[#0d2e26] overflow-hidden transition-all duration-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0d2e26]/50 focus-visible:ring-offset-4 focus-visible:ring-offset-[#EAF3E8]"
                   >
-                    <span className="absolute inset-0 bg-[#0d2e26] translate-y-[100%] group-hover:translate-y-0 transition-transform duration-500 ease-in-out" />
-                    <span className="relative font-verne-sans text-[10px] tracking-[0.25em] uppercase text-[#0d2e26] group-hover:text-[#EAF3E8] transition-colors duration-500">
+                    <span className="absolute inset-0 bg-[#0d2e26] translate-y-[101%] group-hover:translate-y-0 transition-transform duration-700 ease-in-out" />
+                    <span className="relative font-verne-sans text-[10px] tracking-[0.3em] uppercase text-[#0d2e26] group-hover:text-[#EAF3E8] transition-colors duration-700">
                       Explore Details
                     </span>
                   </button>
@@ -641,27 +617,31 @@ function ProductSection() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            transition={{ duration: 0.5 }}
-            className="fixed inset-0 z-[100] flex items-center justify-center p-4 md:p-8 bg-[#0d2e26]/90 backdrop-blur-md"
+            transition={{ duration: 0.6 }}
+            className="fixed inset-0 z-[100] flex items-center justify-center p-4 md:p-8 lg:p-12 bg-[#0d2e26]/95 backdrop-blur-md"
             onClick={() => setSelectedProduct(null)}
           >
             <motion.div
-              initial={{ opacity: 0, y: 30 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: 30 }}
-              transition={{ duration: 0.7, ease: luxuryEase }}
-              className="bg-[#FAFAF7] w-full max-w-6xl max-h-[95vh] overflow-y-auto flex flex-col md:flex-row relative"
+              initial={{ opacity: 0, scale: 0.98, y: 30 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.98, y: 30 }}
+              transition={{ duration: 0.8, ease: luxuryEase }}
+              className="bg-[#FAFAF7] w-full max-w-7xl max-h-[95vh] overflow-y-auto flex flex-col md:flex-row relative shadow-2xl"
               onClick={(e) => e.stopPropagation()}
+              role="dialog"
+              aria-modal="true"
+              aria-label={`${selectedProduct.name} Details`}
             >
               <button
                 onClick={() => setSelectedProduct(null)}
-                className="absolute top-6 right-6 p-2 text-[#0d2e26]/50 hover:text-[#0d2e26] z-10 transition-colors"
+                aria-label="Close product details"
+                className="absolute top-6 right-6 md:top-8 md:right-8 p-3 text-[#0d2e26]/30 hover:text-[#0d2e26] z-10 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0d2e26]/30 rounded-full"
               >
-                <X className="w-8 h-8 stroke-[1]" />
+                <X className="w-8 h-8 stroke-[1]" aria-hidden="true" />
               </button>
 
-              <div className="md:w-1/2 p-12 md:p-20 flex items-center justify-center bg-white">
-                <div className="w-full max-w-md">
+              <div className="md:w-5/12 p-8 pt-20 md:p-12 lg:p-24 flex items-center justify-center bg-white">
+                <div className="w-full max-w-[280px] md:max-w-sm">
                   <ProductImage
                     type={selectedProduct.name.toUpperCase()}
                     bgColor={selectedProduct.bgColor}
@@ -669,25 +649,25 @@ function ProductSection() {
                 </div>
               </div>
 
-              <div className="md:w-1/2 p-12 md:p-20 flex flex-col justify-center border-l border-[#0d2e26]/5">
-                <span className="font-verne-sans text-[9px] tracking-[0.4em] uppercase text-[#0d2e26]/50 mb-4">
+              <div className="md:w-7/12 p-8 pb-16 md:p-12 lg:p-24 flex flex-col justify-center border-t md:border-t-0 md:border-l border-[#0d2e26]/5 text-center md:text-left items-center md:items-start">
+                <span className="font-verne-sans text-[9px] tracking-[0.5em] uppercase text-[#0d2e26]/40 mb-6">
                   Collection {selectedProduct.number.split(" / ")[0]}
                 </span>
-                <h3 className="font-verne-serif text-4xl md:text-5xl text-[#0d2e26] mb-6">
+                <h3 className="font-verne-serif text-4xl md:text-5xl lg:text-6xl text-[#0d2e26] mb-8 leading-tight">
                   {selectedProduct.name}
                 </h3>
-                <p className="font-verne-sans text-[10px] tracking-[0.2em] uppercase text-[#0d2e26]/70 mb-10 pb-10 border-b border-[#0d2e26]/10">
+                <p className="font-verne-sans text-[10px] tracking-[0.3em] uppercase text-[#0d2e26]/60 mb-10 pb-10 border-b border-[#0d2e26]/10">
                   {selectedProduct.material}
                 </p>
-                <p className="font-verne-serif text-xl font-light leading-relaxed text-[#0d2e26]/80 mb-12">
+                <p className="font-verne-serif text-lg md:text-xl lg:text-2xl font-light leading-relaxed text-[#0d2e26]/80 mb-16">
                   {selectedProduct.description}
                 </p>
 
-                <div className="mt-auto">
-                  <button className="w-full py-5 bg-[#0d2e26] hover:bg-[#15463a] text-[#EAF3E8] font-verne-sans text-[11px] tracking-[0.3em] uppercase transition-colors duration-500">
+                <div className="mt-auto pt-8">
+                  <button className="w-full py-5 lg:py-6 bg-[#0d2e26] hover:bg-[#15463a] text-[#EAF3E8] font-verne-sans text-[11px] tracking-[0.4em] uppercase transition-all duration-700 shadow-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0d2e26]/50 focus-visible:ring-offset-2 focus-visible:ring-offset-[#FAFAF7]">
                     Request Reservation
                   </button>
-                  <p className="text-center font-verne-serif italic text-sm text-[#0d2e26]/50 mt-6 tracking-wide">
+                  <p className="text-center font-verne-serif italic text-sm text-[#0d2e26]/40 mt-8 tracking-[0.05em]">
                     Subject to edition availability
                   </p>
                 </div>
@@ -702,48 +682,48 @@ function ProductSection() {
 
 function BenefitsSection() {
   const benefits = [
-    "A private, preferred rate reserved exclusively for this list.",
+    "A private rate, reserved exclusively for this list.",
     "Complimentary engraving of your name, date, or word.",
     "Individually certified number and signed certificate.",
-    "A personal letter from the Founder, worth keeping.",
+    "A personal letter from the Founder.",
     "Complimentary signature Verne gift wrapping.",
     "$200 Atelier Credit toward a future Verne piece.",
   ];
 
   return (
-    <section className="py-24 md:py-32 px-6 md:px-12 bg-[#EAF3E8]">
+    <section className="py-32 md:py-48 px-6 md:px-12 bg-[#EAF3E8]">
       <AnimatedSection>
-        <div className="max-w-4xl mx-auto">
-          <div className="bg-[#f7f2e8] border border-[#0d2e26]/5 p-12 md:p-24 relative overflow-hidden">
-            <div className="absolute top-0 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-[#0d2e26]/20 to-transparent" />
+        <div className="max-w-5xl mx-auto">
+          <div className="bg-[#f7f2e8] border border-[#0d2e26]/5 p-10 md:p-16 lg:p-32 relative overflow-hidden shadow-sm">
+            <div className="absolute top-0 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-[#0d2e26]/10 to-transparent" />
 
-            <p className="font-verne-sans text-[10px] tracking-[0.3em] uppercase text-[#0d2e26]/50 mb-16 text-center">
+            <p className="font-verne-sans text-[10px] tracking-[0.5em] uppercase text-[#0d2e26]/30 mb-16 lg:mb-20 text-center">
               The Founder&apos;s Privileges
             </p>
 
-            <div className="grid md:grid-cols-2 gap-x-16 gap-y-10">
+            <div className="grid lg:grid-cols-2 gap-y-12 md:gap-y-16 lg:gap-x-20">
               {benefits.map((benefit, index) => (
                 <motion.div
                   key={index}
                   initial={{ opacity: 0, y: 20 }}
                   whileInView={{ opacity: 1, y: 0 }}
                   transition={{
-                    duration: 0.8,
-                    delay: index * 0.1,
+                    duration: 1,
+                    delay: index * 0.15,
                     ease: luxuryEase,
                   }}
                   viewport={{ once: true }}
-                  className="flex items-start gap-6"
+                  className="flex items-start gap-6 lg:gap-8"
                 >
-                  <div className="w-1 h-1 bg-[#0d2e26]/30 mt-3 flex-shrink-0 rotate-45" />
-                  <p className="font-verne-serif text-lg md:text-xl font-light leading-relaxed text-[#0d2e26]">
+                  <div className="w-1.5 h-1.5 bg-[#0d2e26]/20 mt-2.5 flex-shrink-0 rotate-45" aria-hidden="true" />
+                  <p className="font-verne-serif text-xl lg:text-2xl font-light leading-[1.5] text-[#0d2e26]/90">
                     {benefit}
                   </p>
                 </motion.div>
               ))}
             </div>
 
-            <div className="absolute bottom-0 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-[#0d2e26]/20 to-transparent" />
+            <div className="absolute bottom-0 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-[#0d2e26]/10 to-transparent" />
           </div>
         </div>
       </AnimatedSection>
@@ -823,39 +803,43 @@ function EngravingAtelierSection() {
   };
 
   return (
-    <section className="py-24 md:py-32 px-6 md:px-12 bg-[#EAF3E8]">
+    <section className="py-32 md:py-48 px-6 md:px-12 bg-[#EAF3E8] border-t border-[#0d2e26]/5">
       <AnimatedSection>
-        <div className="max-w-3xl mx-auto border border-[#0d2e26]/10 p-10 md:p-20 relative bg-white/40">
-          <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-[#EAF3E8] px-6">
-            <Sparkles className="w-5 h-5 text-[#0d2e26]/30" strokeWidth={1} />
+        <div className="max-w-4xl mx-auto border border-[#0d2e26]/10 p-8 md:p-16 lg:p-24 relative bg-white/30 shadow-sm">
+          <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-[#EAF3E8] px-6 md:px-8">
+            <Sparkles className="w-5 h-5 md:w-6 md:h-6 text-[#0d2e26]/20" strokeWidth={1} aria-hidden="true" />
           </div>
 
-          <div className="text-center mb-12">
-            <p className="font-verne-sans text-[10px] tracking-[0.3em] uppercase text-[#0d2e26]/50 mb-6">
+          <div className="text-center mb-12 md:mb-16">
+            <p className="font-verne-sans text-[10px] tracking-[0.4em] uppercase text-[#0d2e26]/40 mb-6 md:mb-8">
               The Artisan&apos;s Atelier
             </p>
-            <h3 className="font-verne-serif text-3xl md:text-4xl text-[#0d2e26] mb-6">
+            <h3 className="font-verne-serif text-3xl md:text-5xl text-[#0d2e26] mb-6 md:mb-8 leading-tight">
               Discover Your Engraving
             </h3>
-            <p className="font-verne-serif text-lg font-light text-[#0d2e26]/80 max-w-lg mx-auto leading-relaxed">
+            <p className="font-verne-serif text-lg md:text-xl font-light text-[#0d2e26]/70 max-w-xl mx-auto leading-relaxed">
               Share the sentiment you wish to hold close, and our master engraver
               will suggest the perfect words for your piece.
             </p>
           </div>
 
-          <div className="flex flex-col md:flex-row gap-6 items-center justify-center mb-12">
-            <input
-              type="text"
-              value={sentiment}
-              onChange={(e) => setSentiment(e.target.value)}
-              placeholder="e.g., A reminder of my own resilience..."
-              className="w-full md:w-2/3 bg-transparent border-b border-[#0d2e26]/30 text-[#0d2e26] px-2 py-4 focus:outline-none focus:border-[#0d2e26] placeholder-[#0d2e26]/30 font-verne-serif text-lg italic transition-colors"
-              disabled={isGenerating}
-            />
+          <div className="flex flex-col md:flex-row gap-6 md:gap-8 items-center justify-center mb-12 md:mb-16">
+            <div className="w-full md:w-2/3 relative">
+              <label htmlFor="sentiment-input" className="sr-only">Enter your sentiment, memory, or feeling</label>
+              <input
+                id="sentiment-input"
+                type="text"
+                value={sentiment}
+                onChange={(e) => setSentiment(e.target.value)}
+                placeholder="e.g., A reminder of my own resilience..."
+                className="w-full bg-transparent border-b border-[#0d2e26]/20 text-[#0d2e26] px-2 py-4 md:py-5 focus:outline-none focus:border-[#0d2e26] placeholder-[#0d2e26]/30 font-verne-serif text-xl md:text-2xl italic transition-all duration-500"
+                disabled={isGenerating}
+              />
+            </div>
             <button
               onClick={handleGenerate}
               disabled={isGenerating || !sentiment.trim()}
-              className="w-full md:w-auto shrink-0 px-8 py-4 bg-[#0d2e26] text-[#EAF3E8] font-verne-sans text-[10px] tracking-[0.25em] uppercase hover:bg-[#15463a] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full md:w-auto shrink-0 px-10 md:px-12 py-4 md:py-5 bg-[#0d2e26] text-[#EAF3E8] font-verne-sans text-[10px] tracking-[0.3em] uppercase hover:bg-[#15463a] transition-all duration-500 disabled:opacity-50 disabled:cursor-not-allowed shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0d2e26]/50 focus-visible:ring-offset-2 focus-visible:ring-offset-[#EAF3E8]"
             >
               {isGenerating ? "Consulting..." : "Inspire Me"}
             </button>
@@ -867,7 +851,8 @@ function EngravingAtelierSection() {
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
-                className="text-center font-verne-serif text-sm text-red-800/60 font-light mb-4"
+                className="text-center font-verne-serif text-sm text-red-900/50 font-light mb-6"
+                role="alert"
               >
                 {error}
               </motion.p>
@@ -875,23 +860,24 @@ function EngravingAtelierSection() {
 
             {engravings.length > 0 && (
               <motion.div
-                initial={{ opacity: 0, y: 30 }}
+                initial={{ opacity: 0, y: 40 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.8, ease: luxuryEase }}
-                className="grid gap-6 mt-12"
+                transition={{ duration: 1, ease: luxuryEase }}
+                className="grid gap-6 md:gap-8 mt-12 md:mt-16"
+                aria-live="polite"
               >
                 {engravings.map((eng, idx) => (
                   <div
                     key={idx}
-                    className="bg-[#f7f2e8]/50 p-8 border border-[#0d2e26]/10 text-center"
+                    className="bg-[#f7f2e8]/40 p-8 md:p-14 border border-[#0d2e26]/5 text-center shadow-sm"
                   >
-                    <p className="font-verne-sans text-[9px] tracking-[0.3em] uppercase text-[#0d2e26]/40 mb-4">
+                    <p className="font-verne-sans text-[9px] tracking-[0.4em] uppercase text-[#0d2e26]/30 mb-4 md:mb-6">
                       {eng.language}
                     </p>
-                    <p className="font-verne-serif text-2xl md:text-3xl text-[#0d2e26] mb-4">
+                    <p className="font-verne-serif text-3xl md:text-5xl text-[#0d2e26] mb-4 md:mb-6 leading-tight">
                       &quot;{eng.phrase}&quot;
                     </p>
-                    <p className="font-verne-serif text-base font-light text-[#0d2e26]/70 italic">
+                    <p className="font-verne-serif text-base md:text-xl font-light text-[#0d2e26]/60 italic">
                       {eng.meaning}
                     </p>
                   </div>
@@ -907,17 +893,17 @@ function EngravingAtelierSection() {
 
 function CTASection() {
   return (
-    <section id="reserve" className="py-24 md:py-36 px-6 md:px-12 bg-[#EAF3E8]">
-      <div className="max-w-3xl mx-auto text-center">
+    <section id="reserve" className="py-32 md:py-56 px-6 md:px-12 bg-[#EAF3E8]">
+      <div className="max-w-4xl mx-auto text-center">
         <AnimatedSection>
-          <div className="w-px h-24 bg-[#0d2e26]/20 mx-auto mb-16" />
+          <div className="w-px h-20 md:h-28 bg-[#0d2e26]/10 mx-auto mb-16 md:mb-20" />
         </AnimatedSection>
 
         <AnimatedSection delay={0.1}>
-          <h2 className="font-verne-serif text-3xl md:text-5xl text-[#0d2e26] mb-8">
+          <h2 className="font-verne-serif text-4xl md:text-6xl text-[#0d2e26] mb-8 md:mb-10 leading-tight">
             Secure Your Place
           </h2>
-          <p className="font-verne-serif text-xl md:text-2xl italic font-light leading-relaxed text-[#0d2e26]/80 mb-16">
+          <p className="font-verne-serif text-xl md:text-3xl italic font-light leading-relaxed text-[#0d2e26]/70 mb-16 md:mb-20">
             Five pieces per design.
             <br />
             Once claimed, this form of the piece will not return.
@@ -927,17 +913,17 @@ function CTASection() {
         <AnimatedSection delay={0.2}>
           <a
             href="#reserve-form"
-            className="group relative inline-flex items-center justify-center px-16 py-6 border border-[#0d2e26] overflow-hidden"
+            className="group relative inline-flex items-center justify-center px-16 md:px-20 py-6 md:py-7 border border-[#0d2e26] overflow-hidden transition-all duration-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0d2e26]/50 focus-visible:ring-offset-4 focus-visible:ring-offset-[#EAF3E8]"
           >
-            <span className="absolute inset-0 bg-[#0d2e26] translate-y-[100%] group-hover:translate-y-0 transition-transform duration-700 ease-[0.16,1,0.3,1]" />
-            <span className="relative font-verne-sans text-[11px] tracking-[0.3em] uppercase text-[#0d2e26] group-hover:text-[#EAF3E8] transition-colors duration-700">
+            <span className="absolute inset-0 bg-[#0d2e26] translate-y-[101%] group-hover:translate-y-0 transition-transform duration-700 ease-[0.16,1,0.3,1]" />
+            <span className="relative font-verne-sans text-[11px] tracking-[0.4em] uppercase text-[#0d2e26] group-hover:text-[#EAF3E8] transition-colors duration-700">
               Reserve Your Piece
             </span>
           </a>
         </AnimatedSection>
 
         <AnimatedSection delay={0.3}>
-          <p className="mt-10 font-verne-serif text-sm md:text-base italic font-light text-[#0d2e26]/60 tracking-wide">
+          <p className="mt-10 md:mt-12 font-verne-serif text-sm md:text-lg italic font-light text-[#0d2e26]/40 tracking-wide">
             One click. We confirm your place and share First Access pricing
             privately.
           </p>
@@ -949,20 +935,21 @@ function CTASection() {
 
 function FAQItem({ question, answer, isOpen, onToggle }: FAQItemProps) {
   return (
-    <div className="border-b border-[#0d2e26]/10 last:border-b-0">
+    <div className="border-b border-[#0d2e26]/5 last:border-b-0">
       <button
         onClick={onToggle}
-        className="w-full py-8 md:py-10 flex items-center justify-between gap-6 text-left group"
+        aria-expanded={isOpen}
+        className="w-full py-8 md:py-14 flex items-center justify-between gap-6 md:gap-8 text-left group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0d2e26]/20 rounded-sm"
       >
-        <h3 className="font-verne-serif text-xl md:text-2xl text-[#0d2e26] group-hover:opacity-70 transition-opacity font-light">
+        <h3 className="font-verne-serif text-xl md:text-3xl text-[#0d2e26]/90 group-hover:text-[#0d2e26] transition-colors font-light leading-tight">
           {question}
         </h3>
         <motion.div
           animate={{ rotate: isOpen ? 180 : 0 }}
-          transition={{ duration: 0.5, ease: luxuryEase }}
+          transition={{ duration: 0.6, ease: luxuryEase }}
           className="flex-shrink-0"
         >
-          <ChevronDown className="w-5 h-5 text-[#0d2e26]/40 stroke-[1]" />
+          <ChevronDown className="w-5 h-5 md:w-6 md:h-6 text-[#0d2e26]/30 stroke-[1]" aria-hidden="true" />
         </motion.div>
       </button>
       <AnimatePresence initial={false}>
@@ -971,10 +958,10 @@ function FAQItem({ question, answer, isOpen, onToggle }: FAQItemProps) {
             initial={{ height: 0, opacity: 0 }}
             animate={{ height: "auto", opacity: 1 }}
             exit={{ height: 0, opacity: 0 }}
-            transition={{ duration: 0.5, ease: luxuryEase }}
+            transition={{ duration: 0.6, ease: luxuryEase }}
             className="overflow-hidden"
           >
-            <p className="pb-10 font-verne-serif text-lg font-light leading-relaxed text-[#0d2e26]/80 pr-12">
+            <p className="pb-8 md:pb-12 font-verne-serif text-lg md:text-xl font-light leading-relaxed text-[#0d2e26]/70 pr-8 md:pr-24">
               {answer}
             </p>
           </motion.div>
@@ -1011,15 +998,15 @@ function FAQSection() {
   ];
 
   return (
-    <section id="faq" className="py-24 md:py-36 px-6 md:px-12 bg-[#EAF3E8]">
-      <div className="max-w-3xl mx-auto">
+    <section id="faq" className="py-32 md:py-48 px-6 md:px-12 bg-[#EAF3E8] border-t border-[#0d2e26]/5">
+      <div className="max-w-4xl mx-auto">
         <AnimatedSection>
-          <p className="font-verne-sans text-[10px] tracking-[0.3em] uppercase text-[#0d2e26]/50 text-center mb-16">
+          <p className="font-verne-sans text-[10px] tracking-[0.4em] uppercase text-[#0d2e26]/30 text-center mb-16 md:mb-20">
             A few things worth knowing
           </p>
         </AnimatedSection>
 
-        <div className="divide-y divide-[#0d2e26]/10 border-t border-b border-[#0d2e26]/10">
+        <div className="divide-y divide-[#0d2e26]/5 border-t border-b border-[#0d2e26]/5">
           {faqs.map((faq, index) => (
             <FAQItem
               key={index}
@@ -1039,21 +1026,21 @@ function FAQSection() {
 
 function Footer() {
   return (
-    <footer className="bg-[#0d2e26] pt-24 pb-12 px-6 md:px-12">
-      <div className="max-w-6xl mx-auto">
-        <div className="text-center mb-16">
-          <p className="font-verne-serif text-3xl tracking-[0.4em] uppercase text-[#f7f2e8]">
+    <footer className="bg-[#0d2e26] pt-32 pb-16 px-6 md:px-12 relative z-10">
+      <div className="max-w-7xl mx-auto">
+        <div className="text-center mb-20 md:mb-24">
+          <p className="font-verne-serif text-3xl md:text-5xl tracking-[0.5em] uppercase text-[#f7f2e8]">
             VERNE
           </p>
         </div>
 
-        <div className="flex flex-wrap justify-center gap-10 mb-20">
+        <div className="flex flex-wrap justify-center gap-10 md:gap-20 mb-20 md:mb-24">
           {["Collection", "Our Story", "Instagram", "Client Services"].map(
             (item, index) => (
               <a
                 key={index}
                 href="#"
-                className="font-verne-sans text-[9px] tracking-[0.2em] uppercase text-[#f7f2e8]/60 hover:text-[#f7f2e8] transition-colors"
+                className="font-verne-sans text-[9px] tracking-[0.3em] uppercase text-[#f7f2e8]/40 hover:text-[#f7f2e8] transition-colors duration-500 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[#f7f2e8]/50 focus-visible:ring-offset-4 focus-visible:ring-offset-transparent rounded-sm"
               >
                 {item}
               </a>
@@ -1061,22 +1048,22 @@ function Footer() {
           )}
         </div>
 
-        <div className="text-center space-y-6">
-          <p className="font-verne-serif text-sm font-light text-[#f7f2e8]/40 tracking-wide">
+        <div className="text-center space-y-8 border-t border-[#f7f2e8]/5 pt-12 md:pt-16">
+          <p className="font-verne-serif text-sm md:text-base font-light text-[#f7f2e8]/30 tracking-[0.02em] leading-relaxed">
             Verne Group LLC · Raleigh, North Carolina 27609, United States
             <br />
             client.relations@vernejewels.com
           </p>
-          <div className="flex justify-center gap-6 mt-8">
+          <div className="flex justify-center gap-10 mt-10 md:mt-12">
             <a
               href="#"
-              className="font-verne-sans text-[9px] tracking-widest text-[#f7f2e8]/40 hover:text-[#f7f2e8]/70 uppercase transition-colors"
+              className="font-verne-sans text-[9px] tracking-[0.4em] text-[#f7f2e8]/20 hover:text-[#f7f2e8]/50 uppercase transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[#f7f2e8]/30 rounded-sm"
             >
               Privacy
             </a>
             <a
               href="#"
-              className="font-verne-sans text-[9px] tracking-widest text-[#f7f2e8]/40 hover:text-[#f7f2e8]/70 uppercase transition-colors"
+              className="font-verne-sans text-[9px] tracking-[0.4em] text-[#f7f2e8]/20 hover:text-[#f7f2e8]/50 uppercase transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[#f7f2e8]/30 rounded-sm"
             >
               Terms
             </a>
@@ -1089,12 +1076,11 @@ function Footer() {
 
 export default function App() {
   return (
-    <main className="min-h-screen bg-[#EAF3E8] overflow-x-hidden selection:bg-[#0d2e26] selection:text-[#EAF3E8]">
+    <main className="min-h-screen bg-[#EAF3E8] bg-paper overflow-x-hidden selection:bg-[#0d2e26] selection:text-[#EAF3E8]">
       <FontStyles />
       <Navigation />
       <HeroSection />
       <HookSection />
-      <QuoteSection />
       <ExpectationSection />
       <ProductSection />
       <BenefitsSection />
@@ -1102,11 +1088,11 @@ export default function App() {
       <CTASection />
       <FAQSection />
 
-      <section className="py-32 px-6 md:px-12 bg-[#EAF3E8] text-center border-t border-[#0d2e26]/5">
-        <p className="font-verne-serif text-2xl md:text-3xl italic font-light text-[#0d2e26] mb-12">
+      <section className="py-32 md:py-48 px-6 md:px-12 bg-[#EAF3E8] text-center border-t border-[#0d2e26]/5">
+        <p className="font-verne-serif text-2xl md:text-4xl italic font-light text-[#0d2e26]/80 mb-12 md:mb-16 max-w-2xl mx-auto leading-relaxed">
           Choose your talisman for the season ahead.
         </p>
-        <div className="w-1 h-1 bg-[#0d2e26]/30 rotate-45 mx-auto" />
+        <div className="w-1.5 h-1.5 bg-[#0d2e26]/10 rotate-45 mx-auto" aria-hidden="true" />
       </section>
 
       <Footer />
